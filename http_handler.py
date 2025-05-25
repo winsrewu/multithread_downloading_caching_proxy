@@ -250,8 +250,8 @@ def handle_http(client_socket: socket.socket, url: str, headers: dict, method: s
                             client_socket.unwrap()
                         except ssl.SSLError as e:
                             # Handling situations where the SSL connection is not fully established
-                            logger.warning(f"SSL unwrap error: {e}")
                             client_socket.close()
+                            logger.warning(f"SSL unwrap error: {e}")
                 except Exception as e:
                     logger.error(f"Error closing SSL connection: {e}")
                     client_socket.close()
