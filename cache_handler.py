@@ -1,4 +1,5 @@
 import hashlib
+import os
 from pathlib import Path
 import threading
 import time
@@ -74,6 +75,7 @@ def _check_disk_space():
 
 def save_to_cache(type: CacheType, name: str, data: bytes):
     """保存数据到缓存系统"""
+    # log(f"Attempting to save cache: type={type}, name={name}, with_cache={configs.with_cache}")
     if (not configs.with_cache) and type == CacheType.WEB_FILE:
         return False
 
@@ -221,6 +223,50 @@ def _clean_cache():
                 traceback.print_exc()
         log("Cleaning cache done")
         time.sleep(CACHE_EXPIRE_SECONDS)  # 每24小时清理一次
+        
+def manual_clean_cache():
+    """手动清理所有缓存，忽略有效期限制"""
+    log("Cleaning all cache...")
+    for cache_key in os.listdir(CACHE_DIR):
+        cache_dir = CACHE_DIR + "/" + cache_key
+        meta_file = CACHE_DIR + "/" + cache_key + "/.meta"
+        if not Path(meta_file).exists():
+            shutil.rmtree(cache_dir, ignore_errors=True)
+            continue
 
-# 启动清理线程
-threading.Thread(target=_clean_cache, daemon=True).start()
+        locker = FileLock(meta_file + ".lock")
+        try:
+            with locker.acquire(timeout=10):
+                with open(meta_file) as f:
+                    meta = _parse_cache_meta(f.read())
+                
+                # 删除所有缓存项（忽略过期时间）
+                for m in meta:
+                    cache_file = CACHE_DIR + "/" + cache_key + "/" + m['id']
+                    if Path(cache_file).exists():
+                        os.remove(cache_file)
+                        log(f"Cleaned cache file {cache_file}")
+                
+                # 删除元数据文件和目录
+                os.remove(meta_file)
+                shutil.rmtree(cache_dir, ignore_errors=True)
+                log(f"Cleaned cache directory {cache_dir}")
+                
+        except Exception as e:
+            log(f"Failed to clean cache: {e}")
+            traceback.print_exc()
+    
+    log("Cleaning all cache done")
+
+def chose_clean_ways(manual_clean=False):
+    """
+    Args:
+        manual_clean (bool): 是否执行手动清理
+    """
+    # 始终启动定时清理线程
+    threading.Thread(target=_clean_cache, daemon=True).start()
+    
+    # 根据参数决定是否执行手动清理
+    if manual_clean:
+        # manual_clean_cache()
+        threading.Thread(target=manual_clean_cache, daemon=True).start()
