@@ -12,6 +12,7 @@ from configs import *
 from gradle_handler import set_gradle_proxies, clear_gradle_proxies
 from log_handler import request_tracker
 from utils import log
+import cache_handler  # 添加缓存处理模块导入
 
 
 def start_proxy(proxy_host, proxy_port, handler, server):
@@ -37,10 +38,14 @@ if __name__ == '__main__':
     parser.add_argument("--gradle", action="store_true", help="Set gradle proxies")
     parser.add_argument("--socks5", action="store_true", help="Enable SOCKS5 proxy")
     parser.add_argument("--print-env", action="store_true", help="Print proxy environment variables")
+    parser.add_argument("--clean-cache", action="store_true", help="Manually clean all cache regardless of expiration time")
     args = parser.parse_args()
 
     set_with_cache(args.with_cache)
     set_with_history(args.with_history)
+    
+    # 统一清理方式处理
+    cache_handler.chose_clean_ways(manual_clean=args.clean_cache)
 
     if args.print_env:
         print(f"http_proxy={HTTP_PROXY}")
