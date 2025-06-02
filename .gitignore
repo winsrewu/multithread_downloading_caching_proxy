@@ -16,3 +16,4 @@ log/*
 .vscode/*
 
 mfc.yaml
+trace.json
