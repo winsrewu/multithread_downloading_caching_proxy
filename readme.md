@@ -40,6 +40,13 @@ keytool -importkeystore -srckeystore cacerts -destkeystore truststore.jks -srcst
 [netch](https://github.com/netchx/netch) 强制为特定软件使用socks5代理  
 [dn](https://github.com/franticxx/dn) 多线程下载器(建议大于等于0.1.4版本)  
 
+## 闲话  
+是的这个没有英语版本.  
+我在B站的视频可能被米哈游的一些开发或者什么人看到了, 所以启动器加了一点逻辑来限制证书来源, 杜绝中间人攻击  
+这没什么不好的, 确实中间人攻击该防, 他们做的没啥问题, 但是至少这个项目的最初目标没有了  
+我大概是不想维护了, 毕竟这个也写得比较完善了()  
+(你写这么大一段就是为了说明自己要摆烂是吧)
+
 <a id="english-version"></a>
 ## English Version
 
