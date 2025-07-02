@@ -1,7 +1,8 @@
 cryptography
-requests
+requests>=2.32.4
 tqdm
 filelock
-waitress
+waitress>=3.0.1
 rich
 pyyaml
+urllib3>=2.5.0
